@@ -22,7 +22,8 @@ RUN git clone -b release18.12 https://github.com/apache/ofbiz-framework ofbiz_er
 EXPOSE 8443
 EXPOSE 8080
 RUN chmod +x ./entrypoint.sh
-RUN ./entrypoint.sh  && sleep 2  && tail -f /ofbiz_erp/runtime/logs/ofbiz.log && bash
+RUN ./entrypoint.sh
+# && sleep 2  && tail -f /ofbiz_erp/runtime/logs/ofbiz.log && bash
 
 # Start ERP
 WORKDIR /ofbiz_erp
