@@ -1,9 +1,6 @@
 #!/bin/bash
-ConfFile=framework/entity/config/entityengine.xml
-cd /ofbiz
-source /root/config.env
-DB_TYPE=`echo "$DB_TYPE"`
-DB_HOST=db-server
+cd /ofbiz_erp
+source /.env
 
 checkcontent=`grep -n "  runtimeOnly" build.gradle`
 if [ $? = 0 ] ; then
@@ -16,44 +13,16 @@ if [ $? = 0 ] ; then
           sed -i "$line"i" runtime 'org.postgresql:postgresql:42.2.5.jre7'" build.gradle
 fi
 
-if [ $DB_TYPE = mysql ]; then
-#	sed -i "181i runtime 'mysql:mysql-connector-java:5.1.47'" build.gradle
-	sed -i -e 's/ofbiz?autoReconnect=true/'$MYSQL_DATABASE'?autoReconnect=true/' $ConfFile
-	sed -i -e 's/jdbc-username="ofbiz"/jdbc-username="'$MYSQL_USER'"/' $ConfFile
-        sed -i -e 's/jdbc-password="ofbiz"/jdbc-password="'$MYSQL_PASSWORD'"/' $ConfFile
-	sleep 10
-	mysql -h db-server -uroot -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS ofbizolap; CREATE DATABASE IF NOT EXISTS ofbiztenant; grant all privileges on *.* to '$MYSQL_USER'@'%' identified by '$MYSQL_PASSWORD';"
-fi
-if [ $DB_TYPE = postgres ]; then
-#	sed -i "181i runtime 'org.postgresql:postgresql:42.2.5.jre7'" build.gradle
-        # sed -i -e '482,491s/ofbiz/'$POSTGRES_DB'/' $ConfFile
-	# sed -i -e 's/jdbc-username="'ofbiz'"/jdbc-username="'$POSTGRES_USER'"/' $ConfFile
-        # sed -i -e 's/jdbc-password="'ofbiz'"/jdbc-password="'$POSTGRES_PASSWORD'"/' $ConfFile
-	# PGPASSWORD=$POSTGRES_PASSWORD psql -h $DB_HOST -U $POSTGRES_USER ofbizolap
-        # PGPASSWORD=$POSTGRES_PASSWORD psql -h $DB_HOST -U $POSTGRES_USER ofbiztenant
-        sed -i 's/jdbc-uri="jdbc:postgresql:\/\/.*"/jdbc-uri="jdbc:postgresql:\/\/'$DB_HOST'\/'$POSTGRES_DB'"/g' $ConfFile
-        sed -i 's/jdbc-username=".*"/jdbc-username="'$POSTGRES_USER'"/g' $ConfFile
-        sed -i 's/jdbc-password=".*"/jdbc-password="'$POSTGRES_PASSWORD'"/g' $ConfFile
+sed -i 's/jdbc-uri="jdbc:postgresql:\/\/.*"/jdbc-uri="jdbc:postgresql:\/\/'$DB_HOST'\/'$DB_NAME'"/g' framework/entity/config/entityengine.xml
+sed -i 's/jdbc-username=".*"/jdbc-username="'$DB_USER'"/g' framework/entity/config/entityengine.xml
+sed -i 's/jdbc-password=".*"/jdbc-password="'$DB_PASSWORD'"/g' framework/entity/config/entityengine.xml
+sed -i -e '40,80s/localderby/'local$DB_TYPE'/g' framework/entity/config/entityengine.xml
+sed -i -e '350,572s/127.0.0.1/'$DB_HOST'/g' framework/entity/config/entityengine.xml
 
-
-
-
-        sed -i 's/jdbc-uri="jdbc:postgresql://.*"/jdbc-uri="jdbc:postgresql://'$DB_HOST'/'$POSTGRES_DB'"/g' $ConfFile
-fi	
-        sed -i -e '40,80s/localderby/'local$DB_TYPE'/g' $ConfFile
-        sed -i -e '350,572s/127.0.0.1/'$DB_HOST'/g' $ConfFile
-
-sed -i 's/port.https.enabled=.*/port.https.enabled='N'/g' framework/webapp/config/url.properties
-sed -i 's/no.http=.*/no.http='Y'/g' framework/webapp/config/url.properties
-sed -i 's/port.http=.*/port.http='80'/g' framework/webapp/config/url.properties # HTTP
-sed -i 's/force.http.host=.*/force.http.host='localhost'/g' framework/webapp/config/url.properties
-sed -i 's/port.https=.*/port.https='443'/g' framework/webapp/config/url.properties # HTTPS
-sed -i 's/force.https.host=.*/force.https.host='localhost'/g' framework/webapp/config/url.properties
-sed -i 's/host-headers-allowed=.*/host-headers-allowed='localhost,127.0.0.1,demo-trunk.ofbiz.apache.org,demo-stable.ofbiz.apache.org,demo-next.ofbiz.apache.org'/g' framework/security/config/security.properties
-
-
-#DataLoad command
-$DB_LOAD 2>&1
-
-#To start OFBiz
-$StartOFBiz 2>&1
+sed -i 's/port.https.enabled=.*/port.https.enabled='$HTTPS_ENABLED'/g' framework/webapp/config/url.properties
+sed -i 's/no.http=.*/no.http='$HTTP_ENABLED'/g' framework/webapp/config/url.properties
+sed -i 's/port.http=.*/port.http='$HTTP_PORT'/g' framework/webapp/config/url.properties
+sed -i 's/force.http.host=.*/force.http.host='$HTTP_HOST'/g' framework/webapp/config/url.properties
+sed -i 's/port.https=.*/port.https='$HTTP_PORTS'/g' framework/webapp/config/url.properties
+sed -i 's/force.https.host=.*/force.https.host='$HTTPS_HOST'/g' framework/webapp/config/url.properties
+sed -i 's/host-headers-allowed=.*/host-headers-allowed='$HOST_CORS'/g' framework/security/config/security.properties

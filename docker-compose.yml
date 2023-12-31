@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+  ofbiz_erp:
+    profiles:
+      - setup
+    build:
+      context: setup/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    init: true
+    volumes:
+      - ./entrypoint.sh:/entrypoint.sh:ro,Z
+    ports:
+      - 8080:8080
+      - 8443:8443
