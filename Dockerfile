@@ -1,15 +1,17 @@
 # OpenJdk IMAGE
-FROM openjdk:8-jdk-alpine
+FROM adoptopenjdk/openjdk11:latest
 
 MAINTAINER Hao Hoang
 
 # Install necessary packages and desirable debug tools
-RUN apk update && \
-    apk upgrade && \
-    apk add git && \
-    apk add bash && \
-    apk add subversion && \
-    apk add mysql-client
+RUN apt -y update && \
+    apt -y upgrade && \
+    apt install -y git && \
+    apt install -y bash && \
+    apt install -y subversion && \
+    apt install -y mysql-client && \
+    apt install -y postgresql && \
+    apt install -y postgresql-contrib
 
 COPY .env entrypoint.sh .
 
@@ -19,6 +21,7 @@ RUN git clone -b release18.12 https://github.com/apache/ofbiz-framework ofbiz_er
 # Expose service ports
 EXPOSE 8443
 EXPOSE 8080
+RUN chmod +x ./entrypoint.sh
 RUN ./entrypoint.sh  && sleep 2  && tail -f /ofbiz_erp/runtime/logs/ofbiz.log && bash
 
 # Start ERP
