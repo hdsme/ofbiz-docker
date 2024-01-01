@@ -1,6 +1,7 @@
 #!/bin/bash
+source .env
 cd /ofbiz_erp
-source /.env
+
 
 checkcontent=`grep -n "  runtimeOnly" build.gradle`
 if [ $? = 0 ] ; then
@@ -26,3 +27,6 @@ sed -i 's/force.http.host=.*/force.http.host='$HTTP_HOST'/g' framework/webapp/co
 sed -i 's/port.https=.*/port.https='$HTTP_PORTS'/g' framework/webapp/config/url.properties
 sed -i 's/force.https.host=.*/force.https.host='$HTTPS_HOST'/g' framework/webapp/config/url.properties
 sed -i 's/host-headers-allowed=.*/host-headers-allowed='$HOST_CORS'/g' framework/security/config/security.properties
+
+./gradlew loadAll
+./gradlew ofbiz
