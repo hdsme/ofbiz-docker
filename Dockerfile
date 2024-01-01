@@ -18,6 +18,7 @@ RUN git clone -b release18.12 https://github.com/apache/ofbiz-framework ofbiz_er
 
 WORKDIR /ofbiz_erp/
 COPY .env entrypoint.sh .
+RUN chmod +x entrypoint.sh
 
 # Expose service ports
 EXPOSE 8443
