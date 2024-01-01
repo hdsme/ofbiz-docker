@@ -24,4 +24,7 @@ EXPOSE 8443
 EXPOSE 8080
 
 # Start
-ENTRYPOINT entrypoint.sh && sleep 2  && tail -f /ofbiz_erp/runtime/logs/ofbiz_erp.log && bash
+WORKDIR /ofbiz_erp/
+RUN ./entrypoint.sh
+RUN ./gradlew loadAll
+ENTRYPOINT ./gradlew ofbiz && sleep 2  && tail -f /ofbiz_erp/runtime/logs/ofbiz_erp.log && bash
